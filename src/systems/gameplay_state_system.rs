@@ -6,7 +6,6 @@ use crate::{
     resources::{Gameplay, GameplayState},
 };
 
-
 pub struct GameplayStateSystem {}
 
 impl<'a> System<'a> for GameplayStateSystem {
@@ -17,7 +16,7 @@ impl<'a> System<'a> for GameplayStateSystem {
         ReadStorage<'a, Position>,
     );
 
-    fn run (&mut self, data: Self::SystemData) {
+    fn run(&mut self, data: Self::SystemData) {
         let (mut gameplay_state, boxes, box_spots, positions) = data;
 
         // get all boxes indexed by position

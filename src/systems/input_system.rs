@@ -1,7 +1,6 @@
 use crate::components::*;
 use crate::constants::*;
-use crate::resources::Gameplay;
-use crate::resources::InputQueue;
+use crate::resources::{InputQueue, Gameplay};
 use ggez::event::KeyCode;
 use specs::{world::Index, Entities, Join, ReadStorage, System, Write, WriteStorage};
 
@@ -21,7 +20,15 @@ impl<'a> System<'a> for InputSystem {
     );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (mut input_queue, mut gameplay, entities, mut positions, players, movables, immovables) = data;
+        let (
+            mut input_queue,
+            mut gameplay,
+            entities,
+            mut positions,
+            players,
+            movables,
+            immovables
+        ) = data;
 
         let mut to_move = Vec::new();
 
@@ -39,9 +46,9 @@ impl<'a> System<'a> for InputSystem {
                     .collect::<HashMap<_, _>>();
 
                 let (start, end, is_x) = match key {
-                    KeyCode::Up => (position.y, MAP_HEIGHT, false),
+                    KeyCode::Up => (position.y, 0, false),
                     KeyCode::Down => (position.y, MAP_HEIGHT, false),
-                    KeyCode::Left => (position.x, MAP_WIDTH, true),
+                    KeyCode::Left => (position.x, 0, true),
                     KeyCode::Right => (position.x, MAP_WIDTH, true),
                     _ => continue,
                 };
@@ -49,7 +56,7 @@ impl<'a> System<'a> for InputSystem {
                 let range = if start < end {
                     (start..=end).collect::<Vec<_>>()
                 } else {
-                    (end..=start).collect::<Vec<_>>()
+                    (end..=start).rev().collect::<Vec<_>>()
                 };
 
                 for x_or_y in range {
@@ -77,7 +84,6 @@ impl<'a> System<'a> for InputSystem {
 
         for (key, id) in to_move {
             let position = positions.get_mut(entities.entity(id));
-            println!("{:?}", position);
             if let Some(position) = position {
                 match key {
                     KeyCode::Up => position.y -= 1,

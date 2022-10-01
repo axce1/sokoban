@@ -20,7 +20,6 @@ pub fn create_floor(world: &mut World, position: Position) {
         .with(Renderable {
             path: "/images/floor.png".to_string(),
         })
-        .with(Wall {})
         .build();
 }
 
@@ -31,7 +30,7 @@ pub fn create_box(world: &mut World, position: Position) {
         .with(Renderable {
             path: "/images/box.png".to_string(),
         })
-        .with(Wall {})
+        .with(Box {})
         .with(Movable)
         .build();
 }
