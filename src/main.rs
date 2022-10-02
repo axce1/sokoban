@@ -1,8 +1,4 @@
-use ggez::{
-    conf,
-    event::{self, KeyCode, KeyMods},
-    Context, GameResult,
-};
+use ggez::{conf, event::{self, KeyCode, KeyMods}, Context, GameResult, timer};
 use specs::{RunNow, World, WorldExt};
 use std::path;
 
@@ -23,7 +19,7 @@ struct Game {
 }
 
 impl event::EventHandler<ggez::GameError> for Game {
-    fn update(&mut self, _context: &mut Context) -> GameResult {
+    fn update(&mut self, context: &mut Context) -> GameResult {
         {
             let mut is = InputSystem {};
             is.run_now(&self.world);
@@ -32,6 +28,10 @@ impl event::EventHandler<ggez::GameError> for Game {
         {
             let mut gss = GameplayStateSystem {};
             gss.run_now(&self.world);
+        }
+        {
+            let mut time = self.world.write_resource::<Time>();
+            time.delta += timer::delta(context);
         }
         Ok(())
     }
@@ -63,11 +63,11 @@ pub fn initialize_level(world: &mut World) {
     const MAP: &str = "
     N N W W W W W W
     W W W . . . . W
-    W . . . B . . W
-    W . . . . . . W
+    W . . . BB . . W
+    W . . RB . . . W
     W . P . . . . W
-    W . . . . . . W
-    W . . S . . . W
+    W . . . . RS . W
+    W . . BS . . . W
     W . . . . . . W
     W W W W W W W W
     ";

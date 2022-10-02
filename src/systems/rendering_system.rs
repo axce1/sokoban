@@ -1,3 +1,4 @@
+use std::time::Duration;
 use crate::components::*;
 use crate::resources::*;
 use crate::constants::TILE_WIDTH;
@@ -26,6 +27,19 @@ impl RenderingSystem<'_> {
         )
             .expect("expected drawing queued text");
     }
+
+    pub fn get_image(&mut self, renderable: &Renderable, delta: Duration) -> Image {
+        let path_index = match renderable.kind() {
+            RenderableKind::Static => {
+                0
+            }
+            RenderableKind::Animated => {
+                ((delta.as_millis() % 1000) / 250) as usize
+            }
+        };
+        let image_path = renderable.path(path_index);
+        Image::new(self.context, image_path).expect("expected image")
+    }
 }
 
 
@@ -33,14 +47,16 @@ impl<'a> System<'a> for RenderingSystem<'a> {
     type SystemData = (
         ReadStorage<'a, Position>,
         ReadStorage<'a, Renderable>,
-        Read<'a, Gameplay>
+        Read<'a, Gameplay>,
+        Read<'a, Time>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
         let (
             positions,
             renderables,
-            gameplay
+            gameplay,
+            time
         ) = data;
 
         // clear the screen
@@ -50,9 +66,10 @@ impl<'a> System<'a> for RenderingSystem<'a> {
         rendering_data.sort_by_key(|&k| k.0.z);
 
         for (position, renderable) in rendering_data.iter() {
-            let image = Image::new(self.context, renderable.path.clone()).expect("expected image");
             let x = position.x as f32 * TILE_WIDTH;
             let y = position.y as f32 * TILE_WIDTH;
+
+            let image = self.get_image(renderable, time.delta);
 
             let draw_params = DrawParam::new().dest(Vec2::new(x, y));
             graphics::draw(self.context, &image, draw_params).expect("expected render");
