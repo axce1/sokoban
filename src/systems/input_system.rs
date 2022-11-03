@@ -5,11 +5,14 @@ use ggez::event::KeyCode;
 use specs::{world::Index, Entities, Join, ReadStorage, System, Write, WriteStorage};
 
 use std::collections::HashMap;
+use crate::EventQueue;
+use crate::events::Event;
 
 pub struct InputSystem {}
 
 impl<'a> System<'a> for InputSystem {
     type SystemData = (
+        Write<'a, EventQueue>,
         Write<'a, InputQueue>,
         Write<'a, Gameplay>,
         Entities<'a>,
@@ -21,6 +24,7 @@ impl<'a> System<'a> for InputSystem {
 
     fn run(&mut self, data: Self::SystemData) {
         let (
+            mut events,
             mut input_queue,
             mut gameplay,
             entities,
@@ -70,7 +74,10 @@ impl<'a> System<'a> for InputSystem {
                     match mov.get(&pos) {
                         Some(id) => to_move.push((key, id.clone())),
                         None => match immov.get(&pos) {
-                            Some(_id) => to_move.clear(),
+                            Some(_id) => {
+                                to_move.clear();
+                                events.events.push(Event::PlayerHitObstacle {})
+                            }
                             None => break,
                         },
                     }

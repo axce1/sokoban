@@ -1,7 +1,9 @@
 use std::fmt::{Display, Formatter};
 use std::time::Duration;
 use ggez::event::KeyCode;
+use crate::events::Event;
 use specs::World;
+use crate::audio::AudioStore;
 
 
 #[derive(Default)]
@@ -18,6 +20,11 @@ pub struct InputQueue {
 pub struct Gameplay {
     pub state: GameplayState,
     pub moves_count: u32
+}
+
+#[derive(Default)]
+pub struct EventQueue {
+    pub events: Vec<Event>,
 }
 
 pub enum GameplayState {
@@ -45,4 +52,6 @@ pub fn register_resources(world: &mut World) {
     world.insert(InputQueue::default());
     world.insert(Gameplay::default());
     world.insert(Time::default());
+    world.insert(EventQueue::default());
+    world.insert(AudioStore::default());
 }
