@@ -7,7 +7,6 @@ use crate::{
 use specs::{Entities, Join, ReadStorage, System, Write};
 use std::collections::HashMap;
 
-
 pub struct EventSystem<'a> {
     pub context: &'a mut ggez::Context,
 }
@@ -19,7 +18,7 @@ impl<'a> System<'a> for EventSystem<'a> {
         Entities<'a>,
         ReadStorage<'a, Box>,
         ReadStorage<'a, BoxSpot>,
-        ReadStorage<'a, Position>
+        ReadStorage<'a, Position>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
@@ -49,7 +48,7 @@ impl<'a> System<'a> for EventSystem<'a> {
                             // Check if there is a spot on this position, and if there
                             // is if it's the correct or incorrect type
                             if let Some(box_spot) =
-                            box_spots_with_positions.get(&(box_position.x, box_position.y))
+                                box_spots_with_positions.get(&(box_position.x, box_position.y))
                             {
                                 new_events.push(Event::BoxPlacedOnSpot(BoxPlacedOnSpot {
                                     is_correct_spot: (box_spot.colour == the_box.colour),

@@ -25,7 +25,7 @@ impl RenderingSystem<'_> {
             None,
             graphics::FilterMode::Linear,
         )
-            .expect("expected drawing queued text");
+        .expect("expected drawing queued text");
     }
 
     pub fn get_image(&mut self, renderable: &Renderable, delta: Duration) -> Image {
@@ -45,19 +45,14 @@ impl RenderingSystem<'_> {
 
 impl<'a> System<'a> for RenderingSystem<'a> {
     type SystemData = (
-        ReadStorage<'a, Position>,
-        ReadStorage<'a, Renderable>,
         Read<'a, Gameplay>,
         Read<'a, Time>,
+        ReadStorage<'a, Position>,
+        ReadStorage<'a, Renderable>,
     );
 
     fn run(&mut self, data: Self::SystemData) {
-        let (
-            positions,
-            renderables,
-            gameplay,
-            time
-        ) = data;
+        let (gameplay, time, positions, renderables) = data;
 
         // clear the screen
         graphics::clear(self.context, graphics::Color::new(0.95, 0.95, 0.95, 1.0));
@@ -66,10 +61,9 @@ impl<'a> System<'a> for RenderingSystem<'a> {
         rendering_data.sort_by_key(|&k| k.0.z);
 
         for (position, renderable) in rendering_data.iter() {
+            let image = self.get_image(renderable, time.delta);
             let x = position.x as f32 * TILE_WIDTH;
             let y = position.y as f32 * TILE_WIDTH;
-
-            let image = self.get_image(renderable, time.delta);
 
             let draw_params = DrawParam::new().dest(Vec2::new(x, y));
             graphics::draw(self.context, &image, draw_params).expect("expected render");
